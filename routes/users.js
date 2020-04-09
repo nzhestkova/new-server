@@ -32,7 +32,7 @@ router.get("/:login", function (req, res) {
         if (err) { console.log(err); }
         data
             ? res.send(data)
-            : res.status(404);
+            : res.status(404).send();
     })
 });
 
