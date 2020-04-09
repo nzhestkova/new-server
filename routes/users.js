@@ -29,9 +29,17 @@ router.get('/', function (req, res) {
 router.get("/:login", function (req, res) {
     dbCollection.findOne({login: req.params.login}, (err, data) => {
         if (err) { console.log(err); }
-        data
-            ? res.send(data)
-            : res.status(404).send();
+        if (data) {
+            if (req.query.password) {
+                req.query.password === data.password
+                    ? res.send(data)
+                    : res.status(502).send()
+            } else {
+                res.send(data)
+            }
+        } else {
+            res.status(404).send();
+        }
     })
 });
 
