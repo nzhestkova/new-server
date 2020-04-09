@@ -22,9 +22,8 @@ mongoDB.connect((mongoError, mongoClient) => {
 });
 
 router.get('/', function (req, res) {
-    dbCollection.find().toArray((error, data) => {
-        res.send(data);
-    });
+    dbClient.db(dbName).collection("counters").findOne({ _id: "userid" }, (err, data) =>
+        res.send(`Users count = ${data.ops}`));
 });
 
 router.get("/:login", function (req, res) {
