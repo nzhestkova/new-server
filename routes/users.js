@@ -23,7 +23,7 @@ mongoDB.connect((mongoError, mongoClient) => {
 
 router.get('/', function (req, res) {
     dbClient.db(dbName).collection("counters").findOne({ _id: "userid" }, (err, data) =>
-        res.send(`Users count = ${data.ops}`));
+        res.send(`Users count = ${data.sequence_value}`));
 });
 
 router.get("/:login", function (req, res) {
