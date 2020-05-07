@@ -44,6 +44,40 @@ router.get("/:login", function (req, res) {
 });
 
 router.put("/:id", function (req, res) {
+    let previousInfo;
+    dbCollection.findOne(
+        { _id: +req.body._id },
+        (err, user) => {
+            if (err) {}
+            previousInfo = user;
+        }
+    );
+    dbCollection.updateOne(
+        { _id: +req.body._id },
+        { $set: {
+                status: req.body.status,
+                login: req.body.login,
+                username: req.body.username,
+                password: req.body.password,
+                education: req.body.education,
+                notifications: req.body.notifications
+            }},
+        (err, user) => {
+            // user.value.notifications.forEach((notification) => {
+            //     console.log(typeof notification.lifetime);
+            //     if (notification.checked !== previousInfo.notifications.checked) {
+            //         setTimeout(() => {
+            //             dbCollection.updateOne(
+            //                 { _id: user.value._id },
+            //                 { $set: {
+            //                     notifications: user.value.notifications.filter((not) => not.message !== notification.message)
+            //                 }}
+            //             );
+            //         }, +notification.lifetime)
+            //     }
+            // });
+        }
+    );
     res.status(200).send();
 });
 
