@@ -8,6 +8,8 @@ const cors = require("cors");
 
 const indexRouter = require('./routes/index');
 const usersRouter = require('./routes/users');
+const materialsRouter = require('./routes/materials');
+const tasksRouter = require('./routes/tasks');
 
 const app = express();
 
@@ -26,6 +28,8 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 app.use('/', indexRouter);
 app.use('/users', usersRouter);
+app.use('/materials', materialsRouter);
+app.use('/tasks', tasksRouter);
 
 app.use(function(req, res, next) {
   next(createError(404));

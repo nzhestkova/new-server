@@ -62,21 +62,6 @@ router.put("/:id", function (req, res) {
                 education: req.body.education,
                 notifications: req.body.notifications
             }},
-        (err, user) => {
-            // user.value.notifications.forEach((notification) => {
-            //     console.log(typeof notification.lifetime);
-            //     if (notification.checked !== previousInfo.notifications.checked) {
-            //         setTimeout(() => {
-            //             dbCollection.updateOne(
-            //                 { _id: user.value._id },
-            //                 { $set: {
-            //                     notifications: user.value.notifications.filter((not) => not.message !== notification.message)
-            //                 }}
-            //             );
-            //         }, +notification.lifetime)
-            //     }
-            // });
-        }
     );
     res.status(200).send();
 });
