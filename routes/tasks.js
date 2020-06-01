@@ -25,11 +25,10 @@ mongoDB.connect((mongoError, mongoClient) => {
 
 router.post("/", (req, res) => {
     const task = req.body;
-    console.log(+task["authorID"]);
     getNextSequenceValue("taskid").then(data => {
         task["_id"] = data.value.sequence_value;
         dbCollection.insertOne(task, (err, result) => {
-            res.send(result.ops);
+            res.send({ _id: result.ops[0]._id });
             let previousInfo;
             usersCollection.findOne(
                 { _id: +task["authorID"] },
@@ -51,6 +50,32 @@ router.post("/", (req, res) => {
             );
         });
     });
+});
+
+router.put("/:id", (req, res) => {
+    dbCollection.updateOne(
+        { _id: +req.body._id },
+        { $set: {
+                title: req.body.title,
+                questions: req.body.questions,
+                ready: req.body.ready,
+                passingScore: req.body.passingScore,
+                lifeCycle: {
+                    isTemporary: req.body.lifeCycle.isTemporary,
+                    openTime: req.body.lifeCycle.openTime,
+                    closeTime: req.body.lifeCycle.closeTime,
+                },
+                passProcess: {
+                    isOnTime: req.body.passProcess.isOnTime,
+                    timeToPass: req.body.passProcess.timeToPass,
+                },
+                rePassAbility: {
+                    attemptNotLimited: req.body.rePassAbility.attemptNotLimited,
+                    attemptCount: req.body.rePassAbility.attemptCount,
+                },
+            }},
+    );
+    res.status(200).send();
 });
 
 router.get("/", (req, res) => {
