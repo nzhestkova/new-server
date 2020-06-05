@@ -26,7 +26,8 @@ mongoDB.connect((mongoError, mongoClient) => {
 router.post("/", (req, res) => {
     const task = req.body;
     getNextSequenceValue("taskid").then(data => {
-        task["_id"] = data.value.sequence_value;
+        task._id = data.value.sequence_value;
+        if (!task.title) { task.title = `Тест #${task._id}` }
         dbCollection.insertOne(task, (err, result) => {
             res.send({ _id: result.ops[0]._id });
             let previousInfo;
@@ -40,8 +41,8 @@ router.post("/", (req, res) => {
                         {
                             $set: {
                                 education: {
-                                    materials: previousInfo.materials,
-                                    tasks: previousInfo.education.tasks.concat([+task._id])
+                                    ...previousInfo.education,
+                                    createdTasks: previousInfo.education.createdTasks.concat([+task._id]),
                                 }
                             }
                         },
@@ -56,10 +57,11 @@ router.put("/:id", (req, res) => {
     dbCollection.updateOne(
         { _id: +req.body._id },
         { $set: {
-                title: req.body.title,
+                title: req.body.title ? req.body.title : `Тест #${req.body._id}`,
                 questions: req.body.questions,
                 ready: req.body.ready,
                 passingScore: req.body.passingScore,
+                assigned: req.body.assigned,
                 lifeCycle: {
                     isTemporary: req.body.lifeCycle.isTemporary,
                     openTime: req.body.lifeCycle.openTime,
@@ -74,7 +76,25 @@ router.put("/:id", (req, res) => {
                     attemptCount: req.body.rePassAbility.attemptCount,
                 },
             }},
-    );
+        (err, result) => {
+            if (err) {}
+            req.body.assigned.forEach((userID) => {
+                usersCollection.findOne({ _id: userID }, (err, user) => {
+                    if (!user.education.assignedTasks.find((task) => task._id === +req.body._id)) {
+                        usersCollection.updateOne(
+                            { _id: userID },
+                            { $set: {
+                                education: {
+                                    ...user.education,
+                                    assignedTasks: user.education.assignedTasks.concat([+req.body._id])
+                                }
+                            }
+                            }
+                            )
+                    }
+                })
+            });
+        });
     res.status(200).send();
 });
 

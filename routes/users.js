@@ -26,6 +26,15 @@ router.get('/', function (req, res) {
         res.send(`Users count = ${data.sequence_value}`));
 });
 
+router.get("/students", (req, res) => {
+    dbCollection.find(
+        { status: "student" }
+    ).toArray((err, results) => {
+        if (err) {}
+        res.status(200).send(results);
+    });
+});
+
 router.get("/:login", function (req, res) {
     dbCollection.findOne({login: req.params.login}, (err, data) => {
         if (err) { console.log(err); }
