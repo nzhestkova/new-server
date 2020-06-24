@@ -4,11 +4,10 @@ const path = require('path');
 const cookieParser = require('cookie-parser');
 const lessMiddleware = require('less-middleware');
 const logger = require('morgan');
-const cors = require("cors");
+const helmet = require('helmet');
 
 const indexRouter = require('./routes/index');
 const usersRouter = require('./routes/users');
-const materialsRouter = require('./routes/materials');
 const tasksRouter = require('./routes/tasks');
 
 const app = express();
@@ -16,8 +15,19 @@ const app = express();
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'pug');
 
-app.use(cors());
-app.options("*", cors());
+const cors = require('cors');
+const whitelist = ['http://localhost:4200', 'http://localhost:3000', 'http://nzhestkova.github.io/'];
+const corsOptions = {
+  credentials: true,
+  origin: (origin, callback) => {
+    if(whitelist.includes(origin))
+      return callback(null, true);
+
+    callback(new Error('Not allowed by CORS'));
+  }
+};
+app.use(cors(corsOptions));
+app.use(helmet());
 
 app.use(logger('dev'));
 app.use(express.json());
@@ -28,7 +38,6 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 app.use('/', indexRouter);
 app.use('/users', usersRouter);
-app.use('/materials', materialsRouter);
 app.use('/tasks', tasksRouter);
 
 app.use(function(req, res, next) {

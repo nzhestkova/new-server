@@ -40,10 +40,7 @@ router.post("/", (req, res) => {
                         {_id: +task["authorID"]},
                         {
                             $set: {
-                                education: {
-                                    ...previousInfo.education,
-                                    createdTasks: previousInfo.education.createdTasks.concat([+task._id]),
-                                }
+                                tasks: previousInfo.tasks.concat([+task._id])
                             }
                         },
                     );
@@ -80,27 +77,32 @@ router.put("/:id", (req, res) => {
             if (err) {}
             req.body.assigned.forEach((userID) => {
                 usersCollection.findOne({ _id: userID }, (err, user) => {
-                    if (!user.education.assignedTasks.find((task) => task._id === +req.body._id)) {
+                    if (!user.tasks.find((task) => task._id === +req.body._id)) {
                         usersCollection.updateOne(
                             { _id: userID },
                             { $set: {
-                                education: {
-                                    ...user.education,
-                                    assignedTasks: user.education.assignedTasks.concat([+req.body._id])
+                                tasks: user.tasks.find((task) => task === +req.body._id)
+                                    ? user.tasks
+                                    : user.tasks.concat([+req.body._id])
                                 }
-                            }
-                            }
-                            )
+                            });
                     }
                 })
             });
+            res.status(200).send({ ok: true });
+            res.end();
         });
-    res.status(200).send();
 });
 
 router.get("/", (req, res) => {
-    dbClient.db(dbName).collection("counter").findOne({_id: "taskid"}, (err, data) =>
-        res.send(`Tasks count = ${data.sequence_value}`));
+    if (req.query["taskIDS"]) {
+        const tasks = [];
+        req.query["tasks"].forEach((id) => {
+            dbCollection.findOne({ _id: id }, (err, task) => tasks.push(task));
+        });
+        res.send(tasks);
+        res.end();
+    }
 });
 
 router.get("/:id", (req, res) => {
@@ -114,6 +116,11 @@ router.get("/:id", (req, res) => {
 });
 
 router.delete("/:id", (req, res) => {
+    dbCollection.findOneAndDelete({ _id: +req.params.id }, (error, result) => {
+        res.send(result);
+        res.end();
+    })
+        .then()
 });
 
 module.exports = router;
