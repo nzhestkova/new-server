@@ -16,15 +16,8 @@ app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'pug');
 
 const cors = require('cors');
-const whitelist = ['http://localhost:4200', 'http://localhost:3000', 'http://nzhestkova.github.io/'];
 const corsOptions = {
-  credentials: true,
-  origin: (origin, callback) => {
-    if(whitelist.includes(origin))
-      return callback(null, true);
-
-    callback(new Error('Not allowed by CORS'));
-  }
+  credentials: true
 };
 app.use(cors(corsOptions));
 app.use(helmet());
