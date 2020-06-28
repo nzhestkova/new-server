@@ -36,6 +36,19 @@ router.get("/students", (req, res) => {
     });
 });
 
+router.get("/id/:id", (req, res) => {
+    dbCollection.findOne({ _id: +req.params.id }, (err, data) => {
+        if (err) { res.send(err); }
+        if (data) {
+            delete data.status;
+            delete data.login;
+            delete data.pswHS;
+            res.send(data);
+            res.end();
+        }
+    })
+});
+
 router.get("/:login", function (req, res) {
 
     dbCollection.findOne({login: req.params.login}, (err, data) => {
